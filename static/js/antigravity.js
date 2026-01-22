@@ -120,7 +120,7 @@ class BubbleSystem {
     applyShakeForce() {
         this.bubbles.forEach(b => {
             // Stronger random impulse for fun scatter
-            const force = 20; // Maximum force (was 12)
+            const force = 50; // Super strong force (was 20)
             b.vx += (Math.random() - 0.5) * force;
             b.vy += (Math.random() - 0.5) * force;
         });
