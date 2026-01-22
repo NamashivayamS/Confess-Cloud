@@ -218,7 +218,8 @@ main {
     -webkit-user-select: none;
 }
 
-.bubble:hover {
+.bubble:hover,
+.bubble.touch-active {
     border-color: var(--accent);
     z-index: 1000 !important;
     background: rgba(10, 10, 20, 0.95);

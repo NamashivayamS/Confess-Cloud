@@ -164,6 +164,7 @@ class BubbleSystem {
             this.draggedBubble.vx = dx * PHYSICS.throwMultiplier;
             this.draggedBubble.vy = dy * PHYSICS.throwMultiplier;
 
+            this.draggedBubble.element.classList.remove('touch-active'); // Remove glow
             this.draggedBubble.isDragging = false;
             this.draggedBubble = null;
             this.isDragging = false;
@@ -209,6 +210,9 @@ class BubbleSystem {
             this.isDragging = true;
             this.draggedBubble = bubble;
             bubble.isDragging = true;
+
+            // Immediate visual feedback
+            element.classList.add('touch-active');
 
             // Update mouse pos immediately to avoid jump
             this.mouseX = clientX;
