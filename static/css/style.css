@@ -581,6 +581,26 @@ body.feed-active #list-container {
         /* On mobile, if form is visible, bubbles might be behind or around. 
            We let them float. No scroll. */
     }
+
+    .bubble {
+        padding: 5px !important;
+        /* Minimal padding */
+    }
+
+    .bubble .confession-text {
+        width: 100%;
+        max-height: none;
+        /* Use full circle */
+        -webkit-line-clamp: 3;
+        /* Limit lines */
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+    }
+
+    .bubble small {
+        font-size: 0.65rem;
+        margin-top: 2px;
+    }
 }
 
 @media (max-height: 600px) {
