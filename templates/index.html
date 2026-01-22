@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIT Confess Cloud</title>
+
+    <!-- Google Fonts: Outfit for modern, clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Canvas for extra background effects -->
+    <canvas id="cosmosCanvas"></canvas>
+
+    <div class="app-container">
+
+        <!-- Header / Nav -->
+        <header class="glass-header">
+            <div class="logo">CIT Confess Cloud ☁️</div>
+            <div class="view-toggle">
+                <button id="btnBubble" class="active" onclick="showBubbleView()">🫧 Bubbles</button>
+                <button id="btnList" onclick="showListView()">📋 Feed</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main>
+
+            <!-- Confession Form (Floating) -->
+            <div id="form-container" class="glass-panel slide-in">
+                <h2>Make a Confession</h2>
+                <div class="input-group">
+                    <input type="text" id="displayName" placeholder="Public Display Name">
+                    <input type="text" id="authorName" placeholder="Real Name (Hidden Forever)">
+                </div>
+                <textarea id="confessionText" placeholder="What's weighing on your mind?"></textarea>
+                <button class="submit-btn" onclick="submitConfession()">Release into the Cloud 🚀</button>
+            </div>
+
+            <!-- Bubble View Container -->
+            <div id="bubble-container" class="view-section"></div>
+
+            <!-- List View Container -->
+            <div id="list-container" class="view-section" style="display:none;">
+                <div class="list-controls">
+                    <button class="filter-btn active" onclick="loadList('latest')">Before</button>
+                    <button class="filter-btn" onclick="loadList('trending')">Trend</button>
+                </div>
+                <div id="confession-list"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 💬 Comment Modal -->
+    <div id="commentModal" class="modal-overlay">
+        <div class="modal-glass">
+            <div class="modal-header">
+                <h3>Comments</h3>
+                <span class="close-btn" onclick="closeComments()">&times;</span>
+            </div>
+
+            <div id="modalConfessionText"
+                style="padding: 20px; font-style: italic; border-bottom: 1px solid var(--glass-border); color: #fff;">
+            </div>
+
+            <div id="commentsList" class="comments-scroll"></div>
+
+            <div class="comment-input-area">
+                <textarea id="commentInput" placeholder="Add your thoughts..."></textarea>
+                <button onclick="postComment()">Post</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/antigravity.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cosmos.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
+</html>

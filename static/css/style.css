@@ -1,0 +1,488 @@
+:root {
+    --bg-deep: #000000;
+    /* Premium "Deep Void" Radial Gradient */
+    --bg-cosmic: radial-gradient(circle at 50% 0%, #1c1c3d, #0a0a16 40%, #000000 100%);
+
+    --glass-surface: rgba(20, 20, 35, 0.4);
+    /* Darker, more subtle glass */
+    --glass-border: rgba(255, 255, 255, 0.08);
+    /* Thinner, sharper borders */
+
+    --text-main: #ffffff;
+    --text-muted: #8892b0;
+    --accent: #50fa7b;
+    /* Cyberpunk Green/Cyan for contrast? Or Stick to #00d2ff blue? User liked "Premium" */
+    /* Let's stick to the blue but refine it */
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.25);
+
+    --danger: #ff5555;
+
+    --font-main: 'Outfit', sans-serif;
+    --anim-speed: 0.3s;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: var(--bg-cosmic);
+    background-attachment: fixed;
+    color: var(--text-main);
+    font-family: var(--font-main);
+    overflow: hidden;
+    /* Bubbles handle scroll if needed */
+}
+
+/* Background Canvas */
+#cosmosCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.app-container {
+    position: relative;
+    z-index: 10;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* GLASS HEADER */
+.glass-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(15, 12, 41, 0.6);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(to right, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* TOGGLES */
+.view-toggle {
+    display: flex;
+    gap: 10px;
+    background: var(--glass-surface);
+    padding: 5px;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+}
+
+.view-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all var(--anim-speed);
+}
+
+.view-toggle button.active,
+.view-toggle button:hover {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* MAIN CONTENT */
+main {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* GLASS FORM */
+.glass-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 350px;
+    background: rgba(20, 20, 40, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+}
+
+.glass-panel h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+.input-group input,
+#confessionText {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 12px;
+    color: white;
+    font-family: inherit;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+}
+
+#confessionText {
+    min-height: 100px;
+    resize: none;
+}
+
+.input-group input:focus,
+#confessionText:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: rgba(56, 189, 248, 0.1);
+    /* Very subtle tint */
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.05);
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background: var(--accent);
+    color: #000000;
+    box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+    transform: translateY(-2px);
+    font-weight: 800;
+}
+
+/* BUBBLES */
+#bubble-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05), 0 0 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    /* Reduced from 20px to give more space */
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.bubble:hover {
+    border-color: var(--accent);
+    z-index: 1000 !important;
+    background: rgba(10, 10, 20, 0.95);
+    box-shadow: 0 0 15px var(--accent), 0 0 45px var(--accent-glow);
+}
+
+.bubble .confession-text {
+    font-size: 0.95rem;
+    width: 85%;
+    /* Safely inside the circle */
+    max-height: 60%;
+    /* Prevent hitting top/bottom curves */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    line-height: 1.35;
+    word-wrap: break-word;
+    /* Prevent long words overflowing */
+    margin-bottom: 5px;
+    /* Space for author/actions */
+}
+
+.bubble small {
+    margin-top: 5px;
+    color: var(--accent);
+    font-size: 0.75rem;
+}
+
+.bubble .actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.bubble:hover .actions {
+    opacity: 1;
+}
+
+.bubble .actions button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 15px;
+    padding: 4px 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.bubble .actions button:hover {
+    background: var(--accent);
+}
+
+/* LIST VIEW */
+#list-container {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-width: 800px;
+    margin: 0 auto;
+    padding-bottom: 50px;
+    /* Hide scrollbar for clean look */
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-border) transparent;
+    transition: all 0.3s ease;
+}
+
+body.feed-active #list-container {
+    margin-left: 370px;
+    /* Width of glass panel + margin */
+    width: calc(100% - 370px);
+    max-width: none;
+    margin-right: 0;
+    padding-right: 40px;
+    /* Add some padding on the right */
+}
+
+.list-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.filter-btn {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+}
+
+.confession-card {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s;
+}
+
+.confession-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-glow);
+}
+
+.confession-card textarea {
+    width: 100%;
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    color: white;
+    resize: none;
+}
+
+/* MODAL */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.modal-glass {
+    background: #1a1a2e;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--accent);
+}
+
+.close-btn {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.comments-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.comment-input-area {
+    padding: 15px;
+    border-top: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 0 0 20px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    /* Align to bottom if textarea grows */
+}
+
+.comment-input-area textarea {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    font-family: inherit;
+    resize: none;
+    height: 50px;
+    /* Fixed height for neatness, or min-height */
+    transition: all 0.3s;
+}
+
+.comment-input-area textarea:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+}
+
+.comment-input-area button {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 0 20px;
+    height: 50px;
+    /* Match textarea height */
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.comment-input-area button:hover {
+    box-shadow: 0 0 15px var(--accent-glow);
+    transform: translateY(-2px);
+    background: #fff;
+    /* Highlight on hover */
+}
+
+/* Comment Item */
+.comments-scroll div {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .glass-panel {
+        position: relative;
+        width: auto;
+        top: 0;
+        left: 0;
+        margin: 20px;
+    }
+
+    .glass-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    body.feed-active #list-container {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+        margin-top: 380px;
+        /* Push down below the form */
+    }
+}
