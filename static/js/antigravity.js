@@ -26,7 +26,64 @@ class BubbleSystem {
         this.dragOffsetY = 0;
 
         this.initInteraction();
+        this.initShakeDetection();
         this.animate();
+    }
+
+    initShakeDetection() {
+        if (!isMobile || !window.DeviceMotionEvent) return;
+
+        this.lastShakeTime = 0;
+        this.lastX = null;
+        this.lastY = null;
+        this.lastZ = null;
+
+        // Passive listener for performance
+        window.addEventListener('devicemotion', (e) => this.handleShake(e), { passive: true });
+    }
+
+    handleShake(e) {
+        const now = Date.now();
+        // Rate limit to prevent chaos (500ms cooldown)
+        if (now - this.lastShakeTime < 500) return;
+
+        const acc = e.accelerationIncludingGravity;
+        if (!acc) return;
+
+        const currentX = acc.x;
+        const currentY = acc.y;
+        const currentZ = acc.z;
+
+        if (this.lastX === null) {
+            this.lastX = currentX;
+            this.lastY = currentY;
+            this.lastZ = currentZ;
+            return;
+        }
+
+        const deltaX = Math.abs(this.lastX - currentX);
+        const deltaY = Math.abs(this.lastY - currentY);
+        const deltaZ = Math.abs(this.lastZ - currentZ);
+
+        // Threshold for "Shake" (sensitivity)
+        if ((deltaX + deltaY + deltaZ) > 20) {
+            this.lastShakeTime = now;
+            this.applyShakeForce();
+        }
+
+        this.lastX = currentX;
+        this.lastY = currentY;
+        this.lastZ = currentZ;
+    }
+
+    applyShakeForce() {
+        this.bubbles.forEach(b => {
+            // Apply a solid random impulse
+            // Multiplier depends on mobile constraint, but we want a "fun" scatter
+            const force = 6;
+            b.vx += (Math.random() - 0.5) * force;
+            b.vy += (Math.random() - 0.5) * force;
+        });
     }
 
     initInteraction() {
