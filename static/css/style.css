@@ -603,9 +603,10 @@ body.feed-active #list-container {
         padding: 0 4px;
     }
 
-    .bubble small {
+    .bubble small,
+    .bubble .actions {
         display: none !important;
-        /* Hide author on mobile to save space */
+        /* Hide author and actions on mobile to save space */
     }
 }
 
