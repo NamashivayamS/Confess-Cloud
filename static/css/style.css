@@ -589,17 +589,23 @@ body.feed-active #list-container {
 
     .bubble .confession-text {
         width: 100%;
+        height: 100%;
+        /* Full height */
         max-height: none;
-        /* Use full circle */
-        -webkit-line-clamp: 3;
-        /* Limit lines */
+        display: flex;
+        /* Flex centering */
+        align-items: center;
+        justify-content: center;
+        -webkit-line-clamp: 6;
+        /* Maximize lines */
         font-size: 0.85rem;
-        margin-bottom: 2px;
+        margin: 0;
+        padding: 0 4px;
     }
 
     .bubble small {
-        font-size: 0.65rem;
-        margin-top: 2px;
+        display: none !important;
+        /* Hide author on mobile to save space */
     }
 }
 
