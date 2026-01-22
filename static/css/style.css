@@ -83,6 +83,11 @@ body {
     border: 1px solid var(--glass-border);
 }
 
+/* Hide mobile toggle on desktop */
+.mobile-toggle-btn {
+    display: none;
+}
+
 .view-toggle button {
     background: transparent;
     border: none;
@@ -487,8 +492,27 @@ body.feed-active #list-container {
         font-size: 0.9rem;
     }
 
+    /* Mobile Toggle Button */
+    .mobile-toggle-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 12px 24px;
+        background: var(--accent);
+        color: #000;
+        border: none;
+        border-radius: 25px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 0 15px var(--accent-glow);
+        z-index: 200;
+        /* Above bubbles */
+        position: relative;
+    }
+
     /* Form Positioning */
     .glass-panel {
+        display: none;
+        /* Hidden by default on mobile */
         position: relative;
         width: 100%;
         /* Full width minus margin */
@@ -496,10 +520,28 @@ body.feed-active #list-container {
         /* Safety margin */
         top: 0;
         left: 0;
-        margin: 20px auto;
+        margin: 10px auto;
         /* Center horizontally */
         box-sizing: border-box;
         /* padding included in width */
+    }
+
+    .glass-panel.active {
+        display: block;
+        /* Show when toggled */
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     /* List CSS adjustments */

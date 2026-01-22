@@ -27,6 +27,25 @@ function showListView() {
     loadList("latest");
 }
 
+/* ---------- MOBILE FORM TOGGLE ---------- */
+function toggleForm() {
+    const form = document.getElementById("form-container");
+    const btn = document.getElementById("mobileToggleBtn");
+
+    form.classList.toggle("active");
+
+    if (form.classList.contains("active")) {
+        btn.innerHTML = "❌ Close Form";
+        btn.style.background = "var(--glass-surface)";
+        btn.style.color = "#fff";
+        btn.style.border = "1px solid var(--border)";
+    } else {
+        btn.innerHTML = "✍️ Make a Confession";
+        btn.style.background = "var(--accent)";
+        btn.style.color = "#000";
+    }
+}
+
 /* ---------- CONFESSION ---------- */
 
 function submitConfession() {
@@ -43,7 +62,26 @@ function submitConfession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ confession, author, display_name })
-    }).then(() => location.reload());
+    }).then(() => {
+        // location.reload() // Don't reload, just reset and close
+        document.getElementById("confessionText").value = "";
+
+        // If mobile (check if toggle btn is visible/active logic, or just always try to close)
+        const form = document.getElementById("form-container");
+        if (form.classList.contains("active")) {
+            toggleForm(); // Close it
+        }
+
+        // Refresh bubbles
+        if (document.getElementById("bubble-container").style.display !== "none") {
+            loadBubbles();
+        } else {
+            loadList("latest");
+        }
+
+        // Optional: show thank you msg
+        alert("Confession floating in the cloud! ☁️");
+    });
 }
 
 /* ---------- LIKES ---------- */
