@@ -85,8 +85,8 @@ class BubbleSystem {
 
     handleShake(e) {
         const now = Date.now();
-        // Rate limit to prevent chaos (500ms cooldown)
-        if (now - this.lastShakeTime < 500) return;
+        // Rate limit to prevent chaos (200ms cooldown for more responsiveness)
+        if (now - this.lastShakeTime < 200) return;
 
         const acc = e.accelerationIncludingGravity;
         if (!acc) return;
@@ -107,7 +107,7 @@ class BubbleSystem {
         const deltaZ = Math.abs(this.lastZ - currentZ);
 
         // Threshold for "Shake" (sensitivity)
-        if ((deltaX + deltaY + deltaZ) > 8) { // Even more sensitive (was 12)
+        if ((deltaX + deltaY + deltaZ) > 5) { // Ultra sensitive
             this.lastShakeTime = now;
             this.applyShakeForce();
         }
@@ -120,7 +120,7 @@ class BubbleSystem {
     applyShakeForce() {
         this.bubbles.forEach(b => {
             // Stronger random impulse for fun scatter
-            const force = 50; // Super strong force (was 20)
+            const force = 80; // Insane force
             b.vx += (Math.random() - 0.5) * force;
             b.vy += (Math.random() - 0.5) * force;
         });
