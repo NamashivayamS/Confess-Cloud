@@ -40,6 +40,47 @@ class BubbleSystem {
 
         // Passive listener for performance
         window.addEventListener('devicemotion', (e) => this.handleShake(e), { passive: true });
+
+        this.showDiscoveryHint();
+    }
+
+    showDiscoveryHint() {
+        if (localStorage.getItem('shakeHintShown')) return;
+
+        setTimeout(() => {
+            const hint = document.createElement('div');
+            hint.innerText = "💡 Bro, shake your phone to move the clouds!";
+            Object.assign(hint.style, {
+                position: 'fixed',
+                bottom: '80px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(56, 189, 248, 0.9)',
+                color: '#000',
+                padding: '10px 20px',
+                borderRadius: '20px',
+                fontWeight: 'bold',
+                zIndex: '10000',
+                boxShadow: '0 0 15px rgba(56, 189, 248, 0.4)',
+                pointerEvents: 'none',
+                opacity: '0',
+                transition: 'opacity 0.5s',
+                width: 'max-content',
+                maxWidth: '90%',
+                textAlign: 'center'
+            });
+            document.body.appendChild(hint);
+
+            // Fade in
+            requestAnimationFrame(() => hint.style.opacity = '1');
+
+            // Remove after 4s
+            setTimeout(() => {
+                hint.style.opacity = '0';
+                setTimeout(() => hint.remove(), 500);
+                localStorage.setItem('shakeHintShown', 'true');
+            }, 4000);
+        }, 1500); // Wait 1.5s after load
     }
 
     handleShake(e) {
@@ -66,7 +107,7 @@ class BubbleSystem {
         const deltaZ = Math.abs(this.lastZ - currentZ);
 
         // Threshold for "Shake" (sensitivity)
-        if ((deltaX + deltaY + deltaZ) > 20) {
+        if ((deltaX + deltaY + deltaZ) > 12) { // More sensitive (was 20)
             this.lastShakeTime = now;
             this.applyShakeForce();
         }
@@ -78,9 +119,8 @@ class BubbleSystem {
 
     applyShakeForce() {
         this.bubbles.forEach(b => {
-            // Apply a solid random impulse
-            // Multiplier depends on mobile constraint, but we want a "fun" scatter
-            const force = 6;
+            // Stronger random impulse for fun scatter
+            const force = 12; // Stronger force (was 6)
             b.vx += (Math.random() - 0.5) * force;
             b.vy += (Math.random() - 0.5) * force;
         });
