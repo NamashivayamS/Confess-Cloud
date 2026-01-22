@@ -107,7 +107,7 @@ class BubbleSystem {
         const deltaZ = Math.abs(this.lastZ - currentZ);
 
         // Threshold for "Shake" (sensitivity)
-        if ((deltaX + deltaY + deltaZ) > 12) { // More sensitive (was 20)
+        if ((deltaX + deltaY + deltaZ) > 8) { // Even more sensitive (was 12)
             this.lastShakeTime = now;
             this.applyShakeForce();
         }
@@ -120,7 +120,7 @@ class BubbleSystem {
     applyShakeForce() {
         this.bubbles.forEach(b => {
             // Stronger random impulse for fun scatter
-            const force = 12; // Stronger force (was 6)
+            const force = 20; // Maximum force (was 12)
             b.vx += (Math.random() - 0.5) * force;
             b.vy += (Math.random() - 0.5) * force;
         });
