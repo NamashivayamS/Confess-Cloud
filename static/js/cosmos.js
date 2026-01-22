@@ -75,6 +75,12 @@ class CosmosEffect {
             this.mouse.x = e.x;
             this.mouse.y = e.y;
         });
+
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            this.mouse.x = touch.clientX;
+            this.mouse.y = touch.clientY;
+        }, { passive: true });
     }
 
     init() {

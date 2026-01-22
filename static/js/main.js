@@ -131,7 +131,8 @@ function loadBubbles() {
                 bubble.className = "bubble";
 
                 // Size based on likes, clamped
-                const baseSize = 140; // Increased base size
+                const isMobile = window.innerWidth < 768;
+                const baseSize = isMobile ? 80 : 140; // Smaller base on mobile
                 const likesFactor = Math.min(c.likes * 5, 100);
                 const size = baseSize + likesFactor;
 

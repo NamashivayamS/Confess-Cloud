@@ -1,12 +1,14 @@
 // Physics Configuration
+const isMobile = window.innerWidth < 768;
+
 const PHYSICS = {
-    friction: 0.96,          // High friction for throwing control
-    ambientFriction: 0.995,  // Low friction for perpetual floating
+    friction: isMobile ? 0.92 : 0.96,          // More friction on mobile for control
+    ambientFriction: isMobile ? 0.98 : 0.995,  // Stop faster on mobile
     restitution: 0.7,
-    floatForce: 0.08,
-    maxSpeed: 8,
+    floatForce: isMobile ? 0.04 : 0.08,        // Slower floating on mobile
+    maxSpeed: isMobile ? 4 : 8,                // Lower speed limit
     minSpeed: 0.5,
-    throwMultiplier: 1.5,
+    throwMultiplier: isMobile ? 1.0 : 1.5,
     dampening: 0.95
 };
 
@@ -28,39 +30,47 @@ class BubbleSystem {
     }
 
     initInteraction() {
-        document.addEventListener('mousemove', (e) => {
-            this.prevMouseX = this.mouseX;
-            this.prevMouseY = this.mouseY;
-            this.mouseX = e.clientX;
-            this.mouseY = e.clientY;
+        // Mouse Events
+        document.addEventListener('mousemove', (e) => this.handleMove(e.clientX, e.clientY));
 
-            if (this.isDragging && this.draggedBubble) {
-                // Directly move the bubble
-                this.draggedBubble.x = this.mouseX + this.dragOffsetX;
-                this.draggedBubble.y = this.mouseY + this.dragOffsetY;
+        document.addEventListener('mouseup', () => this.handleEnd());
 
-                // Reset velocity while dragging to 0 (or calculated from delta for "throwing" feel during drag? 
-                // Better to calculate on release, but strictly 0 here prevents drift)
-                this.draggedBubble.vx = 0;
-                this.draggedBubble.vy = 0;
-            }
-        });
+        // Touch Events
+        document.addEventListener('touchmove', (e) => {
+            if (this.isDragging) e.preventDefault(); // Stop scroll when dragging
+            const touch = e.touches[0];
+            this.handleMove(touch.clientX, touch.clientY);
+        }, { passive: false });
 
-        document.addEventListener('mouseup', () => {
-            if (this.isDragging && this.draggedBubble) {
-                // Throw physics
-                const dx = this.mouseX - this.prevMouseX;
-                const dy = this.mouseY - this.prevMouseY;
+        document.addEventListener('touchend', () => this.handleEnd());
+    }
 
-                this.draggedBubble.vx = dx * PHYSICS.throwMultiplier;
-                this.draggedBubble.vy = dy * PHYSICS.throwMultiplier;
+    handleMove(x, y) {
+        this.prevMouseX = this.mouseX;
+        this.prevMouseY = this.mouseY;
+        this.mouseX = x;
+        this.mouseY = y;
 
-                // Mark dragging as false
-                this.draggedBubble.isDragging = false;
-                this.draggedBubble = null;
-                this.isDragging = false;
-            }
-        });
+        if (this.isDragging && this.draggedBubble) {
+            this.draggedBubble.x = this.mouseX + this.dragOffsetX;
+            this.draggedBubble.y = this.mouseY + this.dragOffsetY;
+            this.draggedBubble.vx = 0;
+            this.draggedBubble.vy = 0;
+        }
+    }
+
+    handleEnd() {
+        if (this.isDragging && this.draggedBubble) {
+            const dx = this.mouseX - this.prevMouseX;
+            const dy = this.mouseY - this.prevMouseY;
+
+            this.draggedBubble.vx = dx * PHYSICS.throwMultiplier;
+            this.draggedBubble.vy = dy * PHYSICS.throwMultiplier;
+
+            this.draggedBubble.isDragging = false;
+            this.draggedBubble = null;
+            this.isDragging = false;
+        }
     }
 
     clear() {
@@ -93,18 +103,32 @@ class BubbleSystem {
         };
 
         // Attach Event Listeners to Element
-        element.addEventListener('mousedown', (e) => {
+        const startDrag = (e, clientX, clientY) => {
             // Prevent text selection
-            e.preventDefault();
+            if (e.type === 'mousedown') e.preventDefault();
+            // For touch, we might want to allow default if we're not sure, 
+            // but for a game-like element, preventing default is usually safer to avoid ghost clicks/scroll.
 
             this.isDragging = true;
             this.draggedBubble = bubble;
             bubble.isDragging = true;
 
-            // Offset to keep relative position
-            this.dragOffsetX = bubble.x - e.clientX;
-            this.dragOffsetY = bubble.y - e.clientY;
-        });
+            // Update mouse pos immediately to avoid jump
+            this.mouseX = clientX;
+            this.mouseY = clientY;
+            this.prevMouseX = clientX;
+            this.prevMouseY = clientY;
+
+            this.dragOffsetX = bubble.x - clientX;
+            this.dragOffsetY = bubble.y - clientY;
+        };
+
+        element.addEventListener('mousedown', (e) => startDrag(e, e.clientX, e.clientY));
+
+        element.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            startDrag(e, touch.clientX, touch.clientY);
+        }, { passive: false });
 
         element.addEventListener('mouseenter', () => bubble.isHovered = true);
         element.addEventListener('mouseleave', () => bubble.isHovered = false);

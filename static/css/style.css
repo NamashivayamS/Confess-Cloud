@@ -464,25 +464,97 @@ body.feed-active #list-container {
 }
 
 /* RESPONSIVE */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-    .glass-panel {
-        position: relative;
-        width: auto;
-        top: 0;
-        left: 0;
-        margin: 20px;
-    }
 
+    /* Layout Adjustments */
     .glass-header {
         flex-direction: column;
         gap: 15px;
+        padding: 1rem;
+        align-items: center;
+        /* Center align for mobile */
     }
 
+    .glass-header .logo {
+        font-size: 1.3rem;
+        /* Slightly smaller logo */
+    }
+
+    .view-toggle button {
+        padding: 8px 12px;
+        /* Smaller buttons */
+        font-size: 0.9rem;
+    }
+
+    /* Form Positioning */
+    .glass-panel {
+        position: relative;
+        width: 100%;
+        /* Full width minus margin */
+        max-width: 90%;
+        /* Safety margin */
+        top: 0;
+        left: 0;
+        margin: 20px auto;
+        /* Center horizontally */
+        box-sizing: border-box;
+        /* padding included in width */
+    }
+
+    /* List CSS adjustments */
     body.feed-active #list-container {
         margin-left: 0;
         width: 100%;
-        padding: 20px;
-        margin-top: 380px;
-        /* Push down below the form */
+        padding: 20px 10px;
+        /* Less padding on sides */
+        margin-top: 0;
+        /* Let it flow naturally */
+    }
+
+    #list-container {
+        padding-bottom: 80px;
+        /* Extra space for bottom scroll */
+    }
+
+    .confession-card {
+        padding: 15px;
+        /* Compact padding */
+    }
+
+    /* Modal Adjustments */
+    .modal-glass {
+        width: 95%;
+        /* almost full screen width */
+        max-height: 85vh;
+        top: 50%;
+    }
+
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+
+    /* Bubble Container Override */
+    #bubble-container {
+        /* On mobile, if form is visible, bubbles might be behind or around. 
+           We let them float. No scroll. */
+    }
+}
+
+@media (max-height: 600px) {
+
+    /* Optimization for landscape or small vertical height */
+    .glass-panel {
+        padding: 10px;
+    }
+
+    .glass-panel h2 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    #confessionText {
+        min-height: 60px;
+        /* Smaller textarea */
     }
 }
