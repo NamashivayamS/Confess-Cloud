@@ -200,7 +200,32 @@ function loadBubbles() {
         .then(res => res.json())
         .then(data => {
             allConfessions = data; // Cache
-            renderBubbles(data);
+
+            // SMART SELECTION (Limit 40)
+            if (data.length > 40) {
+                // 1. 15 Most Recent
+                const recent = [...data].reverse().slice(0, 15);
+
+                // 2. 15 Trending (Top Interacted)
+                const trending = [...data].sort((a, b) => (b.likes + b.comment_count) - (a.likes + a.comment_count)).slice(0, 15);
+
+                // 3. 10 Random Discoveries
+                const remaining = data.filter(c => !recent.find(r => r.id === c.id) && !trending.find(t => t.id === c.id));
+                const random = remaining.sort(() => 0.5 - Math.random()).slice(0, 10);
+
+                // Merge and unique
+                const merged = [...recent, ...trending, ...random];
+                const uniqueIds = new Set();
+                const limited = merged.filter(c => {
+                    if (uniqueIds.has(c.id)) return false;
+                    uniqueIds.add(c.id);
+                    return true;
+                });
+
+                renderBubbles(limited);
+            } else {
+                renderBubbles(data);
+            }
         });
 }
 
@@ -215,9 +240,10 @@ function renderBubbles(data) {
 
         // Size based on likes, clamped
         const isMobile = window.innerWidth < 768;
-        const baseSize = isMobile ? 80 : 140;
-        const likesFactor = Math.min(c.likes * 5, 100);
-        const size = baseSize + likesFactor;
+        const baseSize = isMobile ? 70 : 120; // Slightly smaller base
+        const interactionWeight = c.likes + (c.comment_count * 2);
+        const sizeIncrement = Math.min(interactionWeight * 4, 80); // Clamp growth
+        const size = baseSize + sizeIncrement;
 
         bubble.style.width = size + "px";
         bubble.style.height = size + "px";

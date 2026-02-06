@@ -2,14 +2,15 @@
 const isMobile = window.innerWidth < 768;
 
 const PHYSICS = {
-    friction: isMobile ? 0.92 : 0.96,          // More friction on mobile for control
-    ambientFriction: isMobile ? 0.98 : 0.995,  // Stop faster on mobile
+    friction: isMobile ? 0.92 : 0.96,
+    ambientFriction: isMobile ? 0.98 : 0.995,
     restitution: 0.7,
-    floatForce: isMobile ? 0.04 : 0.08,        // Slower floating on mobile
-    maxSpeed: isMobile ? 4 : 8,                // Lower speed limit
-    minSpeed: 0.5,
+    floatForce: isMobile ? 0.04 : 0.08,
+    maxSpeed: isMobile ? 3 : 6,                // Slightly lower max speed for stability
+    minSpeed: 0.4,
     throwMultiplier: isMobile ? 1.0 : 1.5,
-    dampening: 0.95
+    dampening: 0.95,
+    repulsionForce: 1.2                        // NEW: Global repulsion multiplier
 };
 
 class BubbleSystem {
@@ -374,16 +375,17 @@ class BubbleSystem {
                     const moveY = Math.sin(angle) * overlap * 0.5;
 
                     if (!b1.isDragging && !b2.isDragging) {
-                        b1.x -= moveX;
-                        b1.y -= moveY;
-                        b2.x += moveX;
-                        b2.y += moveY;
+                        const pushForce = PHYSICS.repulsionForce;
+                        b1.x -= moveX * pushForce;
+                        b1.y -= moveY * pushForce;
+                        b2.x += moveX * pushForce;
+                        b2.y += moveY * pushForce;
                     } else if (b1.isDragging) {
-                        b2.x += moveX * 2; // b2 moves away
-                        b2.y += moveY * 2;
+                        b2.x += moveX * 2.5; // b2 moves away even faster when dragged
+                        b2.y += moveY * 2.5;
                     } else if (b2.isDragging) {
-                        b1.x -= moveX * 2;
-                        b1.y -= moveY * 2;
+                        b1.x -= moveX * 2.5;
+                        b1.y -= moveY * 2.5;
                     }
 
                     // 2. Exchange Velocity (Elastic)
