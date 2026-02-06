@@ -162,7 +162,10 @@ function loadComments() {
                 const div = document.createElement("div");
                 div.className = "comment-item";
                 div.innerHTML = `
-                    <p>${c.text}</p>
+                    <div class="comment-content">
+                        <strong class="comment-author">${c.display_name || 'Anonymous'}</strong>
+                        <p>${c.text}</p>
+                    </div>
                     ${adminKey ? `<button class="delete-comment-btn" onclick="deleteComment('${c.id}')">🗑</button>` : ""}
                 `;
                 list.appendChild(div);
@@ -179,14 +182,16 @@ function deleteComment(commentId) {
 
 function postComment() {
     const comment = document.getElementById("commentInput").value;
+    const display_name = document.getElementById("commentNameInput").value;
     if (!comment) return;
 
     fetch(`/add_comment/${activeConfessionId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment })
+        body: JSON.stringify({ comment, display_name })
     }).then(() => {
         document.getElementById("commentInput").value = "";
+        // Optional: clear name as well? Usually keep it for convenience
         loadComments();
         // Refresh counts in background
         loadBubbles();

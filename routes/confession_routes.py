@@ -160,6 +160,7 @@ def delete_confession(confession_id):
 def add_comment(confession_id):
     data = request.json or {}
     comment_text = data.get("comment", "").strip()
+    display_name = data.get("display_name", "Anonymous").strip() or "Anonymous"
 
     if not comment_text:
         return jsonify({"error": "Empty comment"}), 400
@@ -167,7 +168,8 @@ def add_comment(confession_id):
     try:
         supabase.table("comments").insert({
             "confession_id": confession_id,
-            "text": comment_text
+            "text": comment_text,
+            "display_name": display_name
         }).execute()
         return jsonify({"message": "Comment added"}), 201
     except Exception as e:
@@ -179,7 +181,7 @@ def get_comments(confession_id):
     try:
         # Fetch related comments
         res = supabase.table("comments") \
-            .select("id, text, created_at") \
+            .select("id, text, created_at, display_name") \
             .eq("confession_id", confession_id) \
             .order("created_at", desc=False) \
             .execute()
