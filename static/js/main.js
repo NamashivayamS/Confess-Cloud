@@ -76,10 +76,12 @@ function submitConfession() {
         return;
     }
 
+    const fingerprint = `${navigator.userAgent} | ${navigator.language} | ${screen.width}x${screen.height} | ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+
     fetch("/add_confession", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confession, author, display_name, tag: selectedTag })
+        body: JSON.stringify({ confession, author, display_name, tag: selectedTag, fingerprint })
     }).then(res => {
         if (res.status === 429) {
             return res.json().then(data => { throw new Error(data.error) });

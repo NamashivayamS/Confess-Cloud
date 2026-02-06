@@ -18,9 +18,11 @@ def add_confession():
         return jsonify({"error": "Missing fields"}), 400
 
     tag = data.get("tag", "General").strip()
+    fingerprint = data.get("fingerprint", "Unknown")
+    user_ip = request.remote_addr
 
     # Rate Limiting
-    allowed, wait_time = can_post(request.remote_addr, cooldown_seconds=120) # 2 min cooldown
+    allowed, wait_time = can_post(user_ip, cooldown_seconds=120) # 2 min cooldown
     if not allowed:
         return jsonify({"error": f"Slow down! Please wait {wait_time} seconds before confessing again."}), 429
 
@@ -33,7 +35,9 @@ def add_confession():
             "confession": confession_text,
             "author": author,
             "display_name": display_name,
-            "tag": tag
+            "tag": tag,
+            "ip_address": user_ip,
+            "fingerprint": fingerprint
         }).execute()
         return jsonify({"message": "Confession added"}), 201
     except Exception as e:
