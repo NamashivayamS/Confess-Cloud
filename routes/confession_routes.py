@@ -175,7 +175,7 @@ def get_comments(confession_id):
     try:
         # Fetch related comments
         res = supabase.table("comments") \
-            .select("text, created_at") \
+            .select("id, text, created_at") \
             .eq("confession_id", confession_id) \
             .order("created_at", desc=False) \
             .execute()
@@ -183,3 +183,16 @@ def get_comments(confession_id):
         return jsonify(res.data), 200
     except Exception as e:
         return jsonify([]), 200
+
+
+@confession_bp.route("/delete_comment/<comment_id>", methods=["DELETE"])
+def delete_comment(comment_id):
+    key = request.args.get("key")
+    if key != ADMIN_KEY:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        supabase.table("comments").delete().eq("id", comment_id).execute()
+        return jsonify({"message": "Comment deleted"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

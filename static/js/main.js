@@ -157,10 +157,21 @@ function loadComments() {
 
             data.forEach(c => {
                 const div = document.createElement("div");
-                div.textContent = c.text;
+                div.className = "comment-item";
+                div.innerHTML = `
+                    <p>${c.text}</p>
+                    ${adminKey ? `<button class="delete-comment-btn" onclick="deleteComment('${c.id}')">🗑</button>` : ""}
+                `;
                 list.appendChild(div);
             });
         });
+}
+
+function deleteComment(commentId) {
+    if (!confirm("Delete this comment?")) return;
+
+    fetch(`/delete_comment/${commentId}?key=${adminKey}`, { method: "DELETE" })
+        .then(() => loadComments());
 }
 
 function postComment() {
