@@ -229,7 +229,11 @@ function renderBubbles(data) {
             <div class="actions">
                 <button onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
                 <button onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
-                <button onclick="event.stopPropagation(); shareConfession('${c.id}', '${c.display_name}')">🔗</button>
+                ${isAdmin ? `
+                    <button onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>
+                ` : `
+                    <button onclick="event.stopPropagation(); shareConfession('${c.id}', '${c.display_name}')">🔗</button>
+                `}
             </div>
         `;
 
