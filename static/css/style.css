@@ -14,15 +14,16 @@
 }
 
 [data-theme="light"] {
-    --bg-deep: #f0f4f8;
-    --bg-cosmic: radial-gradient(circle at 50% 0%, #ffffff, #e6ecf3 40%, #d9e2ec 100%);
-    --glass-surface: rgba(255, 255, 255, 0.6);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --text-main: #102a43;
-    --text-muted: #486581;
-    --accent: #0070f3;
-    --accent-glow: rgba(0, 112, 243, 0.15);
-    --card-bg: rgba(255, 255, 255, 0.8);
+    --bg-deep: #e0eafc;
+    --bg-cosmic: radial-gradient(circle at 50% 0%, #ffffff, #eef2f7 40%, #e0eafc 100%);
+    --glass-surface: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --accent: #2563eb;
+    --accent-glow: rgba(37, 99, 235, 0.15);
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --input-bg: rgba(255, 255, 255, 0.9);
 }
 
 body {
@@ -97,6 +98,13 @@ body {
     font-weight: 700;
     font-size: 1.5rem;
     background: linear-gradient(to right, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .logo {
+    background: linear-gradient(to right, #1e293b, #2563eb);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -223,6 +231,13 @@ main {
     transition: border-color 0.3s;
 }
 
+[data-theme="light"] .input-group input,
+[data-theme="light"] #confessionText {
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 #confessionText {
     min-height: 100px;
     resize: none;
@@ -316,7 +331,6 @@ main {
     align-items: center;
     justify-content: center;
     padding: 10px;
-    /* Reduced from 20px to give more space */
     color: white;
     text-align: center;
     cursor: pointer;
@@ -324,6 +338,15 @@ main {
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
+}
+
+[data-theme="light"] .bubble {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    color: var(--text-main);
 }
 
 .bubble:hover,
