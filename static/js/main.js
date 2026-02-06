@@ -130,14 +130,29 @@ function likeConfession(id) {
 
 /* ---------- COMMENTS (MODAL for BUBBLES) ---------- */
 
-function openComments(id, text) {
+function openComments(id, text, author) {
     activeConfessionId = id;
     document.getElementById("commentModal").style.display = "block";
 
-    // Set text (handle if text is missing for some reason)
+    // Set text and author
     const textField = document.getElementById("modalConfessionText");
-    if (text) textField.innerText = `"${text}"`;
-    else textField.innerText = "";
+    textField.innerHTML = ""; // Clear existing
+
+    // Author
+    if (author) {
+        const authorDiv = document.createElement("div");
+        authorDiv.className = "modal-author";
+        authorDiv.innerText = author;
+        textField.appendChild(authorDiv);
+    }
+
+    // Text
+    if (text) {
+        const quote = document.createElement("div");
+        quote.className = "modal-quote";
+        quote.innerText = `"${text}"`;
+        textField.appendChild(quote);
+    }
 
     loadComments();
 }
@@ -259,7 +274,7 @@ function renderBubbles(data) {
             <small>— ${c.display_name}</small>
             <div class="actions">
                 <button onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
-                <button onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
+                <button onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`, \`${c.display_name.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
                 ${isAdmin ? `
                     <button onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>
                 ` : `
@@ -268,7 +283,7 @@ function renderBubbles(data) {
             </div>
         `;
 
-        bubble.onclick = () => openComments(c.id, c.confession);
+        bubble.onclick = () => openComments(c.id, c.confession, c.display_name);
         container.appendChild(bubble);
         if (window.bubbleSystem) window.bubbleSystem.add(bubble);
     });
@@ -301,7 +316,7 @@ function renderList(data) {
     data.forEach(c => {
         const card = document.createElement("div");
         card.className = "confession-card";
-        card.onclick = () => openComments(c.id, c.confession);
+        card.onclick = () => openComments(c.id, c.confession, c.display_name);
 
         card.innerHTML = `
             <div class="card-header">
@@ -311,7 +326,7 @@ function renderList(data) {
             <div class="card-body">"${c.confession}"</div>
             <div class="card-footer">
                 <button class="card-action-btn" onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
-                <button class="card-action-btn" onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
+                <button class="card-action-btn" onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`, \`${c.display_name.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
                 <button class="card-action-btn" onclick="event.stopPropagation(); shareConfession('${c.id}', '${c.display_name}')">🔗</button>
                 ${isAdmin ? `<button class="card-action-btn delete" onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>` : ""}
             </div>
