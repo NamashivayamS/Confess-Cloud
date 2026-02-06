@@ -1,25 +1,28 @@
 :root {
     --bg-deep: #000000;
-    /* Premium "Deep Void" Radial Gradient */
     --bg-cosmic: radial-gradient(circle at 50% 0%, #1c1c3d, #0a0a16 40%, #000000 100%);
-
     --glass-surface: rgba(20, 20, 35, 0.4);
-    /* Darker, more subtle glass */
     --glass-border: rgba(255, 255, 255, 0.08);
-    /* Thinner, sharper borders */
-
     --text-main: #ffffff;
     --text-muted: #8892b0;
-    --accent: #50fa7b;
-    /* Cyberpunk Green/Cyan for contrast? Or Stick to #00d2ff blue? User liked "Premium" */
-    /* Let's stick to the blue but refine it */
     --accent: #38bdf8;
     --accent-glow: rgba(56, 189, 248, 0.25);
-
     --danger: #ff5555;
-
     --font-main: 'Outfit', sans-serif;
     --anim-speed: 0.3s;
+    --card-bg: rgba(20, 20, 40, 0.5);
+}
+
+[data-theme="light"] {
+    --bg-deep: #f0f4f8;
+    --bg-cosmic: radial-gradient(circle at 50% 0%, #ffffff, #e6ecf3 40%, #d9e2ec 100%);
+    --glass-surface: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --text-main: #102a43;
+    --text-muted: #486581;
+    --accent: #0070f3;
+    --accent-glow: rgba(0, 112, 243, 0.15);
+    --card-bg: rgba(255, 255, 255, 0.8);
 }
 
 body {
@@ -59,9 +62,35 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 1rem 2rem;
-    background: rgba(15, 12, 41, 0.6);
+    background: var(--glass-surface);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--glass-border);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icon-btn {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--accent);
+    color: #000;
 }
 
 .logo {
@@ -83,9 +112,34 @@ body {
     border: 1px solid var(--glass-border);
 }
 
-/* Hide mobile toggle on desktop */
-.mobile-toggle-btn {
-    display: none;
+/* Form toggle button - visible on all devices */
+.form-toggle-btn {
+    display: block;
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--accent-glow);
+    z-index: 2000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-toggle-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 0 25px var(--accent-glow);
+}
+
+.form-toggle-btn.active {
+    background: var(--glass-surface);
+    color: #fff;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px);
 }
 
 .view-toggle button {
@@ -116,18 +170,37 @@ main {
 
 /* GLASS FORM */
 .glass-panel {
+    display: none;
+    /* Hidden by default */
     position: absolute;
     top: 20px;
     left: 20px;
     width: 350px;
-    background: rgba(20, 20, 40, 0.6);
+    background: rgba(20, 20, 40, 0.82);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    z-index: 100;
+    z-index: 1000;
+}
+
+.glass-panel.active {
+    display: block;
+    animation: slideIn 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .glass-panel h2 {
@@ -158,6 +231,41 @@ main {
 .input-group input:focus,
 #confessionText:focus {
     outline: none;
+    border-color: var(--accent);
+}
+
+.tag-selector {
+    margin-bottom: 15px;
+}
+
+.tag-selector label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-chip {
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: var(--text-muted);
+}
+
+.tag-chip:hover,
+.tag-chip.active {
+    background: var(--accent);
+    color: #000;
     border-color: var(--accent);
 }
 
@@ -236,6 +344,7 @@ main {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 4;
+    line-clamp: 4;
     -webkit-box-orient: vertical;
     line-height: 1.35;
     word-wrap: break-word;
@@ -276,37 +385,84 @@ main {
     background: var(--accent);
 }
 
-/* LIST VIEW */
+/* GRID VIEW (Formerly LIST VIEW) */
 #list-container {
     width: 100%;
     height: 100%;
-    padding: 20px;
+    padding: 30px;
     box-sizing: border-box;
     overflow-y: auto;
-    max-width: 800px;
-    margin: 0 auto;
-    padding-bottom: 50px;
-    /* Hide scrollbar for clean look */
+    position: relative;
+    z-index: 5;
     scrollbar-width: thin;
     scrollbar-color: var(--glass-border) transparent;
-    transition: all 0.3s ease;
 }
 
-body.feed-active #list-container {
-    margin-left: 370px;
-    /* Width of glass panel + margin */
-    width: calc(100% - 370px);
-    max-width: none;
-    margin-right: 0;
-    padding-right: 40px;
-    /* Add some padding on the right */
+.list-header {
+    margin-bottom: 30px;
+}
+
+.search-bar {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    width: 100%;
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    padding: 12px 45px 12px 20px;
+    border-radius: 25px;
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.search-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+}
+
+.tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.filter-tag {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    padding: 6px 15px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.filter-tag:hover,
+.filter-tag.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
 }
 
 .list-controls {
     display: flex;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 30px;
 }
 
 .filter-btn {
@@ -327,29 +483,92 @@ body.feed-active #list-container {
 }
 
 .confession-card {
-    background: var(--glass-surface);
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
-    border-radius: 15px;
+    border-radius: 18px;
     padding: 20px;
-    margin-bottom: 20px;
-    backdrop-filter: blur(10px);
-    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
 }
 
 .confession-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent-glow);
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--accent);
+    background: rgba(20, 20, 40, 0.8);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow);
 }
 
-.confession-card textarea {
-    width: 100%;
-    margin-top: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border: none;
-    padding: 8px;
-    border-radius: 8px;
-    color: white;
-    resize: none;
+.card-header {
+    margin-bottom: 12px;
+}
+
+.card-author {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-tag {
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.card-body {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: #e0e0e0;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.card-footer {
+    display: flex;
+    gap: 12px;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 15px;
+}
+
+.card-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.card-action-btn:hover {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+}
+
+.card-action-btn.delete:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
 }
 
 /* MODAL */
@@ -366,7 +585,7 @@ body.feed-active #list-container {
 }
 
 .modal-glass {
-    background: #1a1a2e;
+    background: var(--bg-deep);
     position: absolute;
     top: 50%;
     left: 50%;
@@ -493,38 +712,37 @@ body.feed-active #list-container {
         font-size: 0.9rem;
     }
 
-    /* Mobile Toggle Button */
+    /* Hide the old specific button style since we use the global one */
     .mobile-toggle-btn {
-        display: block;
-        margin: 20px auto;
-        padding: 12px 24px;
-        background: var(--accent);
-        color: #000;
-        border: none;
-        border-radius: 25px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 0 15px var(--accent-glow);
-        z-index: 200;
-        /* Above bubbles */
-        position: relative;
+        display: none;
     }
 
-    /* Form Positioning */
+    /* Form Positioning on mobile */
     .glass-panel {
-        display: none;
-        /* Hidden by default on mobile */
-        position: relative;
-        width: 100%;
-        /* Full width minus margin */
-        max-width: 90%;
-        /* Safety margin */
-        top: 0;
-        left: 0;
-        margin: 10px auto;
-        /* Center horizontally */
-        box-sizing: border-box;
-        /* padding included in width */
+        position: fixed;
+        width: 90%;
+        max-width: 400px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+    }
+
+    .glass-panel.active {
+        display: block;
+        animation: mobileIn 0.3s ease;
+    }
+
+    @keyframes mobileIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -45%);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
     }
 
     .glass-panel.active {
@@ -577,11 +795,6 @@ body.feed-active #list-container {
         font-size: 1.1rem;
     }
 
-    /* Bubble Container Override */
-    #bubble-container {
-        /* On mobile, if form is visible, bubbles might be behind or around. 
-           We let them float. No scroll. */
-    }
 
     .bubble {
         padding: 5px !important;
@@ -598,8 +811,8 @@ body.feed-active #list-container {
         align-items: center;
         justify-content: center;
         -webkit-line-clamp: 6;
-        /* Maximize lines */
-        font-size: 0.85rem;
+        line-clamp: 6;
+        -webkit-box-orient: vertical;
         margin: 0;
         padding: 0 4px;
     }

@@ -2,6 +2,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const adminKey = urlParams.get("admin");
 
 let activeConfessionId = null;
+let selectedTag = "General";
+let allConfessions = []; // Cache for filtering
 
 /* ---------- VIEW TOGGLE ---------- */
 
@@ -27,22 +29,38 @@ function showListView() {
     loadList("latest");
 }
 
-/* ---------- MOBILE FORM TOGGLE ---------- */
+/* ---------- THEME TOGGLE ---------- */
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+}
+
+// Init Theme
+const savedTheme = localStorage.getItem("theme") || "dark";
+document.documentElement.setAttribute("data-theme", savedTheme);
+
+/* ---------- TAG SELECTION ---------- */
+function selectTag(element) {
+    document.querySelectorAll(".tag-chip").forEach(c => c.classList.remove("active"));
+    element.classList.add("active");
+    selectedTag = element.innerText;
+}
+
+/* ---------- FORM TOGGLE ---------- */
 function toggleForm() {
     const form = document.getElementById("form-container");
-    const btn = document.getElementById("mobileToggleBtn");
+    const btn = document.getElementById("formToggleBtn");
 
     form.classList.toggle("active");
 
     if (form.classList.contains("active")) {
         btn.innerHTML = "❌ Close Form";
-        btn.style.background = "var(--glass-surface)";
-        btn.style.color = "#fff";
-        btn.style.border = "1px solid var(--border)";
+        btn.classList.add("active");
     } else {
         btn.innerHTML = "✍️ Make a Confession";
-        btn.style.background = "var(--accent)";
-        btn.style.color = "#000";
+        btn.classList.remove("active");
     }
 }
 
@@ -61,7 +79,12 @@ function submitConfession() {
     fetch("/add_confession", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confession, author, display_name })
+        body: JSON.stringify({ confession, author, display_name, tag: selectedTag })
+    }).then(res => {
+        if (res.status === 429) {
+            return res.json().then(data => { throw new Error(data.error) });
+        }
+        return res.json();
     }).then(() => {
         // location.reload() // Don't reload, just reset and close
         document.getElementById("confessionText").value = "";
@@ -81,6 +104,8 @@ function submitConfession() {
 
         // Optional: show thank you msg
         alert("Confession floating in the cloud! ☁️");
+    }).catch(err => {
+        alert(err.message);
     });
 }
 
@@ -160,49 +185,51 @@ function loadBubbles() {
     fetch("/get_confessions")
         .then(res => res.json())
         .then(data => {
-            const container = document.getElementById("bubble-container");
-            container.innerHTML = "";
-            if (window.bubbleSystem) window.bubbleSystem.clear();
-
-            data.forEach(c => {
-                const bubble = document.createElement("div");
-                bubble.className = "bubble";
-
-                // Size based on likes, clamped
-                const isMobile = window.innerWidth < 768;
-                const baseSize = isMobile ? 80 : 140; // Smaller base on mobile
-                const likesFactor = Math.min(c.likes * 5, 100);
-                const size = baseSize + likesFactor;
-
-                bubble.style.width = size + "px";
-                bubble.style.height = size + "px";
-
-                bubble.innerHTML = `
-                    <div class="confession-text">"${c.confession}"</div>
-                    <small>— ${c.display_name}</small>
-                    <div class="actions">
-                        <button onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
-                        <button onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
-                        ${adminKey ? `<button onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>` : ""}
-                    </div>
-                `;
-
-                // Add click to open comments as main action
-                bubble.onclick = () => openComments(c.id, c.confession);
-
-                container.appendChild(bubble);
-                if (window.bubbleSystem) {
-                    window.bubbleSystem.add(bubble);
-                }
-            });
+            allConfessions = data; // Cache
+            renderBubbles(data);
         });
+}
+
+function renderBubbles(data) {
+    const container = document.getElementById("bubble-container");
+    container.innerHTML = "";
+    if (window.bubbleSystem) window.bubbleSystem.clear();
+
+    data.forEach(c => {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+
+        // Size based on likes, clamped
+        const isMobile = window.innerWidth < 768;
+        const baseSize = isMobile ? 80 : 140;
+        const likesFactor = Math.min(c.likes * 5, 100);
+        const size = baseSize + likesFactor;
+
+        bubble.style.width = size + "px";
+        bubble.style.height = size + "px";
+
+        bubble.innerHTML = `
+            <div class="card-tag" style="margin-bottom: 5px; opacity: 0.8;">${c.tag}</div>
+            <div class="confession-text">"${c.confession}"</div>
+            <small>— ${c.display_name}</small>
+            <div class="actions">
+                <button onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
+                <button onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
+                <button onclick="event.stopPropagation(); shareConfession('${c.id}', '${c.display_name}')">🔗</button>
+            </div>
+        `;
+
+        bubble.onclick = () => openComments(c.id, c.confession);
+        container.appendChild(bubble);
+        if (window.bubbleSystem) window.bubbleSystem.add(bubble);
+    });
 }
 
 /* ---------- LIST VIEW ---------- */
 
 function loadList(mode) {
     // Update toggle buttons for list filter
-    const buttons = document.querySelectorAll('.list-controls .filter-btn');
+    const buttons = document.querySelectorAll('.list-header .filter-btn');
     buttons.forEach(b => b.classList.remove('active'));
     if (mode === 'latest') buttons[0].classList.add('active');
     else buttons[1].classList.add('active');
@@ -210,58 +237,81 @@ function loadList(mode) {
     fetch("/get_confessions")
         .then(res => res.json())
         .then(data => {
-            if (mode === "latest") {
-                data.reverse();
-            } else {
-                // simple sort logic for trending
-                data.sort((a, b) => b.likes - a.likes);
-            }
+            allConfessions = data;
+            if (mode === "latest") data.reverse();
+            else data.sort((a, b) => b.likes - a.likes);
 
-            const list = document.getElementById("confession-list");
-            list.innerHTML = "";
-
-            data.forEach(c => {
-                const card = document.createElement("div");
-                card.className = "confession-card";
-
-                card.innerHTML = `
-                    <div style="font-weight:700; color:var(--accent); margin-bottom:5px;">${c.display_name}</div>
-                    <div style="font-size:1.1rem; margin-bottom:15px;">"${c.confession}"</div>
-
-                    <div class="actions" style="display:flex; gap:10px;">
-                        <button style="background:none; border:1px solid var(--glass-border); color:white; padding:5px 10px; border-radius:10px; cursor:pointer;" onclick="likeConfession('${c.id}')">❤️ ${c.likes}</button>
-                        <span style="padding:5px;">💬 ${c.comment_count} comments</span>
-                        ${adminKey ? `<button onclick="deleteConfession('${c.id}')" style="color:red; background:none; border:none; cursor:pointer;">🗑</button>` : ""}
-                    </div>
-
-                    <div id="comments_${c.id}" class="list-comments"></div>
-
-                    <div style="margin-top:10px; display:flex; gap:5px;">
-                        <textarea placeholder="Write a comment..." id="c_${c.id}" style="height:40px;"></textarea>
-                        <button onclick="postListComment('${c.id}')" style="height:40px; padding:0 15px; background:var(--glass-border); border:none; color:white; border-radius:8px; cursor:pointer;">Post</button>
-                    </div>
-                `;
-
-                list.appendChild(card);
-                loadListComments(c.id);
-            });
+            renderList(data);
         });
 }
 
-function postListComment(id) {
-    const input = document.getElementById(`c_${id}`);
-    const comment = input.value;
-    if (!comment) return;
+function renderList(data) {
+    const list = document.getElementById("confession-list");
+    list.innerHTML = "";
 
-    fetch(`/add_comment/${id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment })
-    }).then(() => {
-        input.value = "";
-        // Refresh just the comments for this card would be optimal, but for now simple:
-        loadListComments(id);
+    data.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "confession-card";
+        card.onclick = () => openComments(c.id, c.confession);
+
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-author">${c.display_name}</span>
+                <span class="card-tag">${c.tag}</span>
+            </div>
+            <div class="card-body">"${c.confession}"</div>
+            <div class="card-footer">
+                <button class="card-action-btn" onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
+                <button class="card-action-btn" onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
+                <button class="card-action-btn" onclick="event.stopPropagation(); shareConfession('${c.id}', '${c.display_name}')">🔗</button>
+                ${adminKey ? `<button class="card-action-btn delete" onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>` : ""}
+            </div>
+        `;
+        list.appendChild(card);
     });
+}
+
+
+/* ---------- SEARCH & FILTER ---------- */
+let currentFilterTag = "All";
+
+function filterByTag(tag) {
+    currentFilterTag = tag;
+    document.querySelectorAll(".filter-tag").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+    filterConfessions();
+}
+
+function filterConfessions() {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = allConfessions.filter(c => {
+        const matchesSearch = c.confession.toLowerCase().includes(query) ||
+            c.display_name.toLowerCase().includes(query);
+        const matchesTag = currentFilterTag === "All" || c.tag === currentFilterTag;
+        return matchesSearch && matchesTag;
+    });
+
+    if (document.getElementById("bubble-container").style.display !== "none") {
+        renderBubbles(filtered);
+    } else {
+        renderList(filtered);
+    }
+}
+
+/* ---------- SHARING ---------- */
+function shareConfession(id, author) {
+    const url = `${window.location.origin}/?id=${id}`;
+    if (navigator.share) {
+        navigator.share({
+            title: `Confession by ${author}`,
+            text: `Check out this confession on CIT Confess Cloud!`,
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Sharable link copied to clipboard! 🔗");
+        });
+    }
 }
 
 /* ---------- ADMIN DELETE ---------- */
@@ -279,38 +329,23 @@ function deleteConfession(id) {
         });
 }
 
-/* ---------- LIST VIEW COMMENTS ---------- */
-
-function loadListComments(confessionId) {
-    fetch(`/get_comments/${confessionId}`)
-        .then(res => res.json())
-        .then(data => {
-            const container = document.getElementById(`comments_${confessionId}`);
-            container.innerHTML = "";
-
-            // Show only last 3 comments for list view
-            const recent = data.slice(-3);
-
-            recent.forEach(c => {
-                const div = document.createElement("div");
-                div.textContent = "• " + c.text;
-                div.style.padding = "4px 8px";
-                div.style.background = "rgba(0,0,0,0.2)";
-                div.style.marginTop = "4px";
-                div.style.borderRadius = "4px";
-                div.style.fontSize = "0.9rem";
-                container.appendChild(div);
-            });
-        });
-}
-
 /* ---------- INIT ---------- */
 
 window.onload = () => {
-    showBubbleView();   // default view
-    loadBubbles();
+    showBubbleView();
 
-    // Background setup if we want dynamic stars in future
-    // const canvas = document.getElementById('cosmosCanvas');
-    // ... setup canvas ...
+    // Initial Load
+    fetch("/get_confessions")
+        .then(res => res.json())
+        .then(data => {
+            allConfessions = data;
+            renderBubbles(data);
+
+            // Deep Linking Check
+            const urlId = urlParams.get("id");
+            if (urlId) {
+                const conf = data.find(c => c.id == urlId);
+                if (conf) openComments(conf.id, conf.confession);
+            }
+        });
 };

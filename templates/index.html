@@ -24,17 +24,21 @@
         <!-- Header / Nav -->
         <header class="glass-header">
             <div class="logo">CIT Confess Cloud ☁️</div>
-            <div class="view-toggle">
-                <button id="btnBubble" class="active" onclick="showBubbleView()">🫧 Bubbles</button>
-                <button id="btnList" onclick="showListView()">📋 Feed</button>
+            <div class="header-right">
+                <button id="themeToggle" class="icon-btn" onclick="toggleTheme()"
+                    title="Toggle Light/Dark Mode">🌓</button>
+                <div class="view-toggle">
+                    <button id="btnBubble" class="active" onclick="showBubbleView()">🫧 Bubbles</button>
+                    <button id="btnList" onclick="showListView()">📋 Feed</button>
+                </div>
             </div>
         </header>
 
         <!-- Main Content Area -->
         <main>
 
-            <!-- Mobile Toggle Button -->
-            <button id="mobileToggleBtn" class="mobile-toggle-btn" onclick="toggleForm()">✍️ Make a Confession</button>
+            <!-- Toggle Button (Now for both desktop & mobile) -->
+            <button id="formToggleBtn" class="form-toggle-btn" onclick="toggleForm()">✍️ Make a Confession</button>
 
             <!-- Confession Form (Floating) -->
             <div id="form-container" class="glass-panel slide-in">
@@ -42,6 +46,17 @@
                 <div class="input-group">
                     <input type="text" id="displayName" placeholder="Public Display Name">
                     <input type="text" id="authorName" placeholder="Real Name (Hidden Forever)">
+                </div>
+                <div class="tag-selector">
+                    <label>Tag your thought:</label>
+                    <div class="tag-chips" id="tagChips">
+                        <span class="tag-chip active" onclick="selectTag(this)">General</span>
+                        <span class="tag-chip" onclick="selectTag(this)">Crush</span>
+                        <span class="tag-chip" onclick="selectTag(this)">Regret</span>
+                        <span class="tag-chip" onclick="selectTag(this)">Funny</span>
+                        <span class="tag-chip" onclick="selectTag(this)">Secret</span>
+                        <span class="tag-chip" onclick="selectTag(this)">Rant</span>
+                    </div>
                 </div>
                 <textarea id="confessionText" placeholder="What's weighing on your mind?"></textarea>
                 <button class="submit-btn" onclick="submitConfession()">Release into the Cloud 🚀</button>
@@ -56,9 +71,23 @@
 
             <!-- List View Container -->
             <div id="list-container" class="view-section" style="display:none;">
-                <div class="list-controls">
-                    <button class="filter-btn active" onclick="loadList('latest')">Before</button>
-                    <button class="filter-btn" onclick="loadList('trending')">Trend</button>
+                <div class="list-header">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search confessions..."
+                            onkeyup="filterConfessions()">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="tag-filters" id="tagFilters">
+                        <button class="filter-tag active" onclick="filterByTag('All')">All</button>
+                        <button class="filter-tag" onclick="filterByTag('Crush')">Crush</button>
+                        <button class="filter-tag" onclick="filterByTag('Regret')">Regret</button>
+                        <button class="filter-tag" onclick="filterByTag('Funny')">Funny</button>
+                        <button class="filter-tag" onclick="filterByTag('Rant')">Rant</button>
+                    </div>
+                    <div class="list-controls">
+                        <button class="filter-btn active" onclick="loadList('latest')">Latest</button>
+                        <button class="filter-btn" onclick="loadList('trending')">Trending</button>
+                    </div>
                 </div>
                 <div id="confession-list"></div>
             </div>

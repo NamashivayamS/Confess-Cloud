@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime
 from config import supabase, ADMIN_KEY
 from utils.filter import is_clean
+from utils.rate_limit import can_post
 
 confession_bp = Blueprint("confession_bp", __name__)
 
@@ -16,6 +17,13 @@ def add_confession():
     if not confession_text or not author or not display_name:
         return jsonify({"error": "Missing fields"}), 400
 
+    tag = data.get("tag", "General").strip()
+
+    # Rate Limiting
+    allowed, wait_time = can_post(request.remote_addr, cooldown_seconds=120) # 2 min cooldown
+    if not allowed:
+        return jsonify({"error": f"Slow down! Please wait {wait_time} seconds before confessing again."}), 429
+
     # filter bad words in confession & name
     if not is_clean(confession_text) or not is_clean(display_name):
         return jsonify({"error": "Inappropriate content detected"}), 400
@@ -25,6 +33,7 @@ def add_confession():
             "confession": confession_text,
             "author": author,
             "display_name": display_name,
+            "tag": tag
         }).execute()
         return jsonify({"message": "Confession added"}), 201
     except Exception as e:
@@ -60,6 +69,7 @@ def get_confessions():
                 "id": c["id"],
                 "confession": c["confession"],
                 "display_name": c.get("display_name", "Anonymous"),
+                "tag": c.get("tag", "General"),
                 "likes": c["likes"],
                 "dislikes": c["dislikes"],
                 "comment_count": count
