@@ -1,5 +1,6 @@
 const urlParams = new URLSearchParams(window.location.search);
 const adminKey = urlParams.get("admin");
+const isAdmin = adminKey === 'CIT_ADMIN_98765';
 
 let activeConfessionId = null;
 let selectedTag = "General";
@@ -277,7 +278,7 @@ function renderList(data) {
                 <button class="card-action-btn" onclick="event.stopPropagation(); likeConfession('${c.id}')">❤️ ${c.likes}</button>
                 <button class="card-action-btn" onclick="event.stopPropagation(); openComments('${c.id}', \`${c.confession.replace(/`/g, "\\`")}\`)">💬 ${c.comment_count}</button>
                 <button class="card-action-btn" onclick="event.stopPropagation(); shareConfession('${c.id}', '${c.display_name}')">🔗</button>
-                ${adminKey ? `<button class="card-action-btn delete" onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>` : ""}
+                ${isAdmin ? `<button class="card-action-btn delete" onclick="event.stopPropagation(); deleteConfession('${c.id}')">🗑</button>` : ""}
             </div>
         `;
         list.appendChild(card);
@@ -329,17 +330,27 @@ function shareConfession(id, author) {
 
 /* ---------- ADMIN DELETE ---------- */
 
-function deleteConfession(id) {
-    if (!confirm("Delete this confession?")) return;
+async function deleteConfession(id) {
+    const confirmDelete = confirm('Delete this confession?');
+    if (!confirmDelete) return;
 
-    fetch(`/delete/${id}?key=${adminKey}`, { method: "DELETE" })
-        .then(() => {
-            if (document.getElementById("bubble-container").style.display !== "none") {
-                loadBubbles();
-            } else {
-                loadList("latest");
-            }
-        });
+    const res = await fetch('/api/admin/delete-confession', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            id,
+            adminKey: 'CIT_ADMIN_98765'
+        })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert(data.error || 'Failed to delete');
+        return;
+    }
+
+    location.reload();
 }
 
 /* ---------- INIT ---------- */
